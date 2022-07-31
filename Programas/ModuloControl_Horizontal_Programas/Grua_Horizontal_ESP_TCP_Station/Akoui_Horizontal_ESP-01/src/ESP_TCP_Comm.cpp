@@ -1,6 +1,9 @@
 /* Servidor TCP en ESP-01
  *
  * Recursos/Electronica/Tarjetas_Desarrollo/ESP/Programas_Ejemplo/ServidorClienteTCP_ServidorESP_ClienteQT/ServidorTCP_ESP/
+ *
+ * En esta versión TCP_ESP_Station el ESP-01 sólo funciona como antena Wifi, envía lo que reciba al Arduino Nano,
+ * donde se procesa la información.
  */
 
 #include <ESP8266WiFi.h>
@@ -25,21 +28,20 @@ void setup()
 {
     Serial.begin(115200);
 
-    WiFi.mode(WIFI_STA); // Configurar como Station (Instead of Acces Point)
-    WiFi.begin(ssid, password); // Connect to WiFi
-
-
-    // Wait for connection
 #if BOOT_MESSAGES
     Serial.println("Boot delay");
     delay(2000);
     Serial.println("Connecting to Wifi");
 #endif
-    while (WiFi.status() != WL_CONNECTED)
+
+    WiFi.mode(WIFI_STA); // Configurar como Station (Instead of Acces Point)
+    WiFi.begin(ssid, password); // Connect to WiFi
+
+    // Wait for connection
+    while( WiFi.status() != WL_CONNECTED )
     {
       delay(500);
       Serial.print(".");
-      delay(500);
     }
 
 #if BOOT_MESSAGES

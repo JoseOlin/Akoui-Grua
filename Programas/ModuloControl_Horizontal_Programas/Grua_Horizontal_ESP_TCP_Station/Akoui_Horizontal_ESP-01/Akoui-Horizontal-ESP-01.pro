@@ -6,8 +6,8 @@ else {
     HOMEDIR += $$(HOME)
 }
 
-INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grúa_Incorporación/Repositorio_Akoui/Componentes/ModuloControl_Horizontal/Programa/Grua_Horizontal_Arduino_ESP_PIO_Station/ESP-01/include"
-INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grúa_Incorporación/Repositorio_Akoui/Componentes/ModuloControl_Horizontal/Programa/Grua_Horizontal_Arduino_ESP_PIO_Station/ESP-01/src"
+INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ESP-01/include"
+INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ESP-01/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif8266/tools/sdk/include"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoespressif8266/cores/esp8266"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/toolchain-xtensa/include"
@@ -63,7 +63,7 @@ DEFINES += "F_CPU=80000000L"
 DEFINES += "__ets__"
 DEFINES += "ICACHE_FLASH"
 DEFINES += "ARDUINO=10805"
-DEFINES += "ARDUINO_BOARD=&quot;PLATFORMIO_ESP01&quot;"
+DEFINES += "ARDUINO_BOARD=PLATFORMIO_ESP01"
 DEFINES += "FLASHMODE_QIO"
 DEFINES += "LWIP_OPEN_SRC"
 DEFINES += "NONOSDK22x_190703=1"

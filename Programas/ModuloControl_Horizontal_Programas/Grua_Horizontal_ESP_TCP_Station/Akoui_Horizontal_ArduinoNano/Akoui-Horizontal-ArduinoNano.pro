@@ -6,8 +6,8 @@ else {
     HOMEDIR += $$(HOME)
 }
 
-INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grúa_Incorporación/Repositorio_Akoui/Componentes/ModuloControl_Horizontal/Programa/Grua_Horizontal_Arduino_ESP_Station_PIO/include"
-INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grúa_Incorporación/Repositorio_Akoui/Componentes/ModuloControl_Horizontal/Programa/Grua_Horizontal_Arduino_ESP_Station_PIO/src"
+INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ArduinoNano/include"
+INCLUDEPATH += "/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ArduinoNano/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduino-avr/cores/arduino"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src"
@@ -38,6 +38,6 @@ SOURCES += \
     src/Grua_Horizontal_Station.cpp
 
 HEADERS += \
+    src/Akoui.hpp \
     src/Comunicacion.hpp \
-    src/Config.hpp \
-    src/Movimiento.hpp
+    src/Config.hpp
