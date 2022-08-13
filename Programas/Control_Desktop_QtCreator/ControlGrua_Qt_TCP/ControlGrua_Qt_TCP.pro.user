@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.0, 2022-07-31T14:41:24. -->
+<!-- Written by QtCreator 4.11.0, 2022-08-12T21:02:11. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -162,7 +162,7 @@
     <value type="int" key="Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration">0</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.2">
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Componentes/Programas/ControlGrua_QtCreator/build-ControlGrua_Qt_TCP/Profile</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/Control_Desktop_QtCreator/build-ControlGrua_Qt_TCP/Profile</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -282,8 +282,9 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">ControlGrua_Qt_TCP2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
@@ -294,7 +295,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory"></value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Componentes/Programas/ControlGrua_QtCreator/build-ControlGrua_Qt_TCP/Profile</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/Control_Desktop_QtCreator/build-ControlGrua_Qt_TCP/Profile</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>

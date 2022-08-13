@@ -1,7 +1,0 @@
-Makefile
-platformio.ini
-.gitignore
-src/Config.h
-src/JoystickShield.cpp
-src/JoystickShield.h
-src/main.cpp

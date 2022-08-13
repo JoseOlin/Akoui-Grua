@@ -10,15 +10,22 @@
 
 #define DEBUG_COMM 1
 #define BOOT_MESSAGES 1
+#define CASA 1
 
+#define SerialBaudRate 115200
 int port = 8888;  //Port number
 WiFiServer server(port);
 
 WiFiClient client;
 
 //Server connect to WiFi Network
+#if CASA
 const char *ssid = "GomezTorres";  // Enter your wifi SSID
 const char *password = "lucy1nthesky";  // Enter your wifi Password
+#else
+const char *ssid = "Telcel-MF253V-5B1F";
+const char *password = "258C4Z3dH5";
+#endif
 
 long currentTime, lastTime;
 long targetPeriod = 50;
@@ -26,7 +33,7 @@ long messagesPeriod = 500;
 
 void setup()
 {
-    Serial.begin(115200);
+    Serial.begin(SerialBaudRate);
 
 #if BOOT_MESSAGES
     Serial.println("Boot delay");

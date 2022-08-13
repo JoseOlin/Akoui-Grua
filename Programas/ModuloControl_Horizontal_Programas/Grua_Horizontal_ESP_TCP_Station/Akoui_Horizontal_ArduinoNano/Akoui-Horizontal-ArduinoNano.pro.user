@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.0, 2022-07-31T14:41:28. -->
+<!-- Written by QtCreator 4.11.0, 2022-08-04T19:25:51. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -255,9 +255,8 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Akoui-Horizontal-ArduinoNano2</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ArduinoNano/Akoui-Horizontal-ArduinoNano.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ArduinoNano/Akoui-Horizontal-ArduinoNano.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ArduinoNano/Akoui-Horizontal-ArduinoNano.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ArduinoNano/Akoui-Horizontal-ArduinoNano.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>

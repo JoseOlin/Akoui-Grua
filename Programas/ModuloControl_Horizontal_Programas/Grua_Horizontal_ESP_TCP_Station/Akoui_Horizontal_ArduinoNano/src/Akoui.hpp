@@ -41,9 +41,12 @@ public:
 
     void readLimits();
 private:
-    int pinIzquierda = 2;
-    int pinDerecha = 3;
+    // Pines Software Serial Rx=2, Tx=3
     int pinPwm = 5; // NOTA: En caso de modificar, definir pines que soporten PWM.
+    int pinIzquierda = 6;
+    int pinDerecha = 7;
+
+
 
     bool accelerating = false;
     char messageType_car;

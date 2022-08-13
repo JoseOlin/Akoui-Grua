@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.0, 2022-07-31T14:26:33. -->
+<!-- Written by QtCreator 4.11.0, 2022-08-12T12:58:18. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -304,9 +304,8 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Akoui-Horizontal-ESP-012</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ESP-01/Akoui-Horizontal-ESP-01.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ESP-01/Akoui-Horizontal-ESP-01.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ESP-01/Akoui-Horizontal-ESP-01.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/ModuloControl_Horizontal_Programas/Grua_Horizontal_ESP_TCP_Station/Akoui_Horizontal_ESP-01/Akoui-Horizontal-ESP-01.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>

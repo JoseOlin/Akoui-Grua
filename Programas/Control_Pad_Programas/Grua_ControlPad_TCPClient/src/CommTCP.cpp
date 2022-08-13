@@ -4,24 +4,80 @@ CommTCP::CommTCP()
 {
     WiFi.begin(ssid, password);
 
-    Serial.println("Connecting");
+    Serial.print("Connecting to "); Serial.println(ssid);
     while(WiFi.status() != WL_CONNECTED)
     {
         delay(500);
         Serial.print(".");
     }
 
-    Serial.println("Connected to WiFi network with IP Address: ");
+    Serial.print("Connected to WiFi network with IP Address: ");
     Serial.println(WiFi.localIP());
 
-    serverH->begin();
+
+    //int maxClients = 4;
+    //Serial.println("Creating ServerV");
+    //IP_Ver = IPAddress(192, 168, 1, 69);
+    //serverV = new WiFiServer(IP_Ver, puertoV, maxClients);
     //serverV->begin();
+#if CASA
+    Serial.print("Akoui_Ver: "); Serial.print(IPVerHost); Serial.print(", Puerto: "); Serial.println(puertoV);
+#endif
+    //Serial.println("Creating ServerH");
+    //IP_Hor = IPAddress(192, 168, 1, 88); //TODO: Check IP_Hor
+    //serverH = new WiFiServer(IP_Hor, puertoH, maxClients);
+    //serverH->begin();
+    Serial.print("Akoui_Hor: "); Serial.print(IPHorHost); Serial.print(", Puerto: "); Serial.println(puertoH);
+
+
+    Serial.println("Connecting ClientV");
+    //clientV = serverV->available();
+    #if CASA
+    clientV.connect(IPVerHost, puertoV);
+    int contV = 0;
+    while(!clientV.connected())
+    {
+        //clientV = serverV->available();
+
+        /*if(clientV.connected())
+        {
+            Serial.println("ClientV connected");
+            break;
+        }*/
+        Serial.print(".");
+        delay(500);
+
+        contV++;
+        if(contV > 8)
+        {
+            Serial.println("ClientV not responding");
+            break;
+        }
+    }
+    #endif
+
+    Serial.println("Connecting ClientH");
+    //clientH = serverH->available();
+    clientH.connect(IPHorHost, puertoH);
+    int contH = 0;
+    while(!clientH.connected())
+    {
+        Serial.print(".");
+        delay(500);
+        contH++;
+        if(contH > 8)
+        {
+            Serial.println("ClientH not responding");
+            break;
+        }
+    }
+
 }
 
-
+/*
 void CommTCP::TCPEcho()
 {
-    clientH = serverH->available();
+    //clientH = serverH->available();
 
 
     if(clientH)
@@ -42,25 +98,60 @@ void CommTCP::TCPEcho()
             Serial.write(inChar);
         }
     }
-}
+}*/
 
-void CommTCP::sendCommand(String serverS, const String command)
+void CommTCP::sendCommand(String hostKey, String command)
 {
-    if(serverS == "H")
+    if(hostKey == "H")
     {
-        clientH = serverH->available();
+        //clientH = serverH->available();
         if(clientH)
         {
             if (clientH.connected())
             {
-                Serial.println("Connected to client");
-                serverH->print(command);
+                Serial.println("clientH Connected.");
+                //serverH->print(command);
+                clientH.print(command);
+            }
+            else
+            {
+                Serial.println("clienteH not connected.");
             }
         }
-    }
-    else if (serverS = "V")
-    {
+        else
+        {
 
+        }
+    }
+    else if (hostKey == "V")
+    {
+        //clientV = serverV->available();
+        if(clientV)
+        {
+            if (clientV.connected())
+            {
+                #if commVerbose
+                Serial.println(", ClientV Connected");
+                #endif
+                //serverV->print(command);
+                #if commActiva
+                clientV.print(command);
+                //clientV.write(command);
+                #endif
+            }
+            else
+            {
+                Serial.println("clienteV not connected.");
+            }
+        }
+        else
+        {
+            Serial.println("!clienteV");
+        }
+    }
+    else
+    {
+        Serial.println("Host Key not valid.");
     }
 }
 

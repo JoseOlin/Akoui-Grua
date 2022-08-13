@@ -23,120 +23,118 @@ void JoystickShield::leerBotones()
 }
 
 
-void JoystickShield::validarEstadoBoton(int &estado,
-                                        bool &flagActivo,
-                                        const String serverS,
-                                        String comando)
+void JoystickShield::validarEstadoBoton(int &estado, bool &flagActivo)
 {
-  if(estado == LOW && !flagActivo)
-  {
-    #if commVerbose
-    Serial.print("Activando "); Serial.println(comando);
-    #endif
+    if(estado == ACTIVE_STATE && !flagActivo)
+    {
+        //Pasó de Inactivo a Activo
+        flagActivo = true;
+    }
+    else if(estado == INACTIVE_STATE && flagActivo)
+    {
+        // Pasó de Activo a Inactivo
 
-#if commHttpActiva
-    String serverName;
-    if (serverS == "V") serverName = comm->serverNameV;
-    String comando_Activar = serverName + comando + "1";
-    httpRequest(comando_Activar);
-#elif commTcpActiva
-    comm->sendCommand(serverS, comando);
-#endif
+        #if commHttpActiva
+        String comando_Desactivar = serverName + comando + "0";
+        httpRequest(comando_Desactivar);
+        delay(delayRequestParada);
 
-    flagActivo = true;
-  }
-  else if(estado == HIGH && flagActivo)
-  {
-    #if commVerbose
-    Serial.print("Desactivando "); Serial.println(comando);
-    #endif
+        httpRequest(comando_Desactivar);
+        delay(delayRequestParada);
 
+        httpRequest(comando_Desactivar);
+        #endif
+        flagStopVertical = true;
+        flagActivo = false;
 
-    #if commHttpActiva
-    String comando_Desactivar = serverName + comando + "0";
-    httpRequest(comando_Desactivar);
-    delay(delayRequestParada);
-
-    httpRequest(comando_Desactivar);
-    delay(delayRequestParada);
-
-    httpRequest(comando_Desactivar);
-    #endif
-
-    flagActivo = false;
-
-    //TODO: Probar si es mejor implementar un contador y enviar un Request por ciclo del loop.
-  }
+        //TODO: Probar si es mejor implementar un contador y enviar un Request por ciclo del loop.
+    }
 }
 
 void JoystickShield::validarEstadoBotones()
 {
-//#if commHttpActiva
-    validarEstadoBoton(pinBtnSubir_value, flagSubiendo, comm->serverNameV, "/subir/");
-    validarEstadoBoton(pinBtnBajar_value, flagBajando, comm->serverNameV, "/bajar/");
+//#if commHttpActiva // Se valida dentro de las funciones
+    validarEstadoBoton(pinBtnSubir_value, flagSubiendo);
+    validarEstadoBoton(pinBtnBajar_value, flagBajando);
 
-    validarEstadoBoton(pinBtnIzq_value, flagMoviendoIzq, comm->serverNameH, "/izquierda/");
-    validarEstadoBoton(pinBtnDer_value, flagMoviendoDer, comm->serverNameH, "/derecha/");
+    validarEstadoBoton(pinBtnIzq_value, flagMoviendoIzq);
+    //validarEstadoBoton(pinBtnDer_value, flagMoviendoDer, comm->serverNameH, "/derecha/");
+    validarEstadoBoton(pinBtnDer_value, flagMoviendoDer);
 
     //validarEstadoBoton_Continuo(izquierda, serverNameH, "/izquierda/");
     //validarEstadoBoton_Continuo(derecha, serverNameH, "/derecha/");
-//#elif commTcpActiva
 
-//#endif
     validarBotones_Pinza(pinBtnAbrirPinza_value,  flagAbriendo, "Abrir");
     validarBotones_Pinza(pinBtnCerrarPinza_value, flagCerrando, "Cerrar");
 
 
     validarBoton_Paro(pinBtnParo_value, flagParo);
 }
-void JoystickShield::validarEstadoBoton_Continuo(int &estado,
-                                                 const String serverName,
-                                                 String comando)
-{
-  if(estado == LOW)
-  {
-    Serial.print("Activando "); Serial.println(comando);
-    String comando_Activar = serverName + comando + "1";
-    #if commHttpActiva
-    httpRequest(comando_Activar);
-    #endif
-    #if commTcpActiva
 
-    #endif
-  }
-  /*else if(estado == HIGH)
-  {
-    Serial.print("Desactivando "); Serial.println(comando);
-    String comando_Desactivar = serverName + comando + "0";
-    #if comActiva
-    httpRequest(comando_Desactivar);
-    #endif
-  }*/
+void JoystickShield::validarEstadoBoton_Continuo(int &estado,
+                                                 const String serverName, String comando)
+{
+    if(estado == LOW)
+    {
+        Serial.print("Activando "); Serial.println(comando);
+        String comando_Activar = serverName + comando + "1";
+
+        #if commHttpActiva
+        //httpRequest(comando_Activar);
+        #endif
+        #if commTcpActiva
+
+        #endif
+    }
+    /*else if(estado == HIGH)
+    {
+        Serial.print("Desactivando "); Serial.println(comando);
+        String comando_Desactivar = serverName + comando + "0";
+        #if comActiva
+        httpRequest(comando_Desactivar);
+        #endif
+    }*/
 }
 
 void JoystickShield::validarBotones_Pinza(int estado, bool &flagActivo, String comando)
 {
-  if(estado == LOW && !flagActivo)
-  {
-    Serial.print("Activando "); Serial.println(comando);
-    //String comando_Activar = serverName + comando + "1";
-    flagActivo = true;
-  }
-  else if(estado == HIGH && flagActivo)
-  {
-    Serial.print("Desactivando "); Serial.println(comando);
-    //String comando_Activar = serverName + comando + "0";
-    flagActivo = false;
-  }
+    if(estado == LOW && !flagActivo)
+    {
+        Serial.print("Activando "); Serial.println(comando);
+        //String comando_Activar = serverName + comando + "1";
+        flagActivo = true;
+    }
+    else if(estado == HIGH && flagActivo)
+    {
+        Serial.print("Desactivando "); Serial.println(comando);
+        //String comando_Activar = serverName + comando + "0";
+        flagActivo = false;
+    }
 }
 
 
+void JoystickShield::displayButtonsValues()
+{
+   Serial.print(", bU: "); Serial.print(pinBtnSubir_value);
+
+   Serial.print(", bD: "); Serial.print(pinBtnBajar_value);
+   Serial.print(", bL: "); Serial.print(pinBtnIzq_value);
+   Serial.print(", bR: "); Serial.print(pinBtnDer_value);
+
+   Serial.print(", bC: "); Serial.print(pinBtnCerrarPinza_value);
+   Serial.print(", bO: "); Serial.print(pinBtnAbrirPinza_value);
+
+   Serial.print(", bS: "); Serial.print(pinBtnParo_value);
+}
+
 void JoystickShield::validarBoton_Paro(int estado, bool &flagActivo)
 {
-  // La activación y desactivación del paro es con la misma acción del botón, así que debe validarse que una vez leído, el
-  // botón no se vuelva a leer durante cierto periodo.
-  unsigned long tiempoActual = millis();
-  unsigned long tiempoTranscurrido = tiempoActual - tiempoUltimaPulsacionParo;
+  // La activación y desactivación del paro es con la misma acción del botón,
+  //  así que debe validarse que una vez leído, el
+  //  botón no se vuelva a leer durante cierto periodo.
+
+    unsigned long tiempoActual = millis();
+    unsigned long tiempoTranscurrido = tiempoActual - tiempoUltimaPulsacionParo;
 
   if(estado == LOW && flagActivo == false && (tiempoTranscurrido > umbralLecturaParo) )
   {
@@ -173,13 +171,100 @@ void JoystickShield::validarBoton_Paro(int estado, bool &flagActivo)
   }
 }
 
+void JoystickShield::sendCommands()
+{
+    if(flagSubiendo)
+    {
+        Serial.print(", Enviar comandoUp");
+        #if commActiva
+            #if commTcpActiva
+                comm->sendCommand("V", comandoUp);
+            #elif commHttpActiva
+                const String comando = "/subir/";
+                String serverName = comm->serverNameV;
+                String comando_Activar = serverName + comando + "1";
+                httpRequest(comando_Activar);
+            #endif
+        #endif
+    }
+    else if (flagBajando)
+    {
+        Serial.print(", Enviar comandoDown");
+        #if commActiva
+            #if commTcpActiva
+                comm->sendCommand("V", comandoDown);
+            #elif commHttpActiva
+
+            #endif
+        #endif
+    }
+    else if(flagStopVertical)
+    {
+        Serial.print(", Enviar comandoStop");
+        #if commActiva
+            #if commTcpActiva
+                comm->sendCommand("V", comandoStop);
+            #elif commHttpActiva
+
+            #endif
+        #endif
+        flagStopVertical = false;
+    }
+    else
+    {
+        //Serial.print(", Enviar comandoStopVer");
+        #if commActiva
+            #if commTcpActiva
+                //comm->sendCommand(comm->serverName_Ver, comandoStop);
+            #elif commHttpActiva
+
+            #endif
+        #endif
+    }
+
+
+    if(flagMoviendoIzq)
+    {
+
+        Serial.print(", Sending comandoLeft");
+        #if commActiva
+            #if commTcpActiva
+                comm->sendCommand("H", comandoLeft);
+            #elif commHttpActiva
+
+            #endif
+        #endif
+    }
+    else if(flagMoviendoDer)
+    {
+        Serial.print(", Sending comandoRight");
+        #if commActiva
+            #if commTcpActiva
+                comm->sendCommand("H", comandoRight);
+            #elif commHttpActiva
+
+            #endif
+        #endif
+    }
+    else
+    {
+
+    }
+}
+
+
+
 void JoystickShield::leerJoystick()
 {
-  JxVal = analogRead(pinJx);
-  JyVal = analogRead(pinJy);
+    JxVal = analogRead(pinJx);
+    JyVal = analogRead(pinJy);
 
-  int JxAbsDif = abs(Jx_Centro - JxVal);
-  int JyAbsDif = abs(Jy_Centro - JyVal);
+    JxAbsDif = abs(Jx_Centro - JxVal);
+    JyAbsDif = abs(Jy_Centro - JyVal);
+}
+
+void JoystickShield::diplayJoystickValues()
+{
 
   if(JxAbsDif > umbralLecturaJoystick ||
      JyAbsDif > umbralLecturaJoystick)
@@ -188,6 +273,7 @@ void JoystickShield::leerJoystick()
     Serial.print(",\tJy: "); Serial.println(JyVal);
   }
 }
+
 
 void JoystickShield::configurePins()
 {

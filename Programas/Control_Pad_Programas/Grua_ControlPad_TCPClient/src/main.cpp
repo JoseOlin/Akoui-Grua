@@ -42,10 +42,10 @@ lib_deps =
 
 #include "JoystickShield.h"
 
-JoystickShield* joyShield;
-CommTCP* comm;
+JoystickShield *joyShield;
+CommTCP *comm;
 
-unsigned int delayLoop = 5; // Evaluar si una frecuencia de lectura
+unsigned int delayLoop = 40; // Evaluar si una frecuencia de lectura
 // mayor a la del pad puede mejorar la lectura y evitar pérdida de comandos.
 unsigned int delayRequestParada = 5;
 
@@ -53,6 +53,8 @@ unsigned int delayRequestParada = 5;
 void setup()
 {
     Serial.begin(115200);
+    delay(500);
+    Serial.println("Comm init.");
 
     comm = new CommTCP();
     joyShield = new JoystickShield(comm); // calls configurePins() and new CommTCP();
@@ -68,11 +70,16 @@ void setup()
 
 void loop()
 {
-    joyShield->leerBotones();
     joyShield->leerJoystick();
+    joyShield->diplayJoystickValues();
+
+    joyShield->leerBotones();
+    joyShield->displayButtonsValues();
     joyShield->validarEstadoBotones();
 
+    joyShield->sendCommands();
     //comm->TCPEcho();
+    Serial.println("");
 
     delay(delayLoop);
 }

@@ -3,6 +3,17 @@
 
 #include <Arduino.h>
 #include "Config.hpp"
+#include <SoftwareSerial.h>
+
+#define SerialBaudRate 115200
+#define sSerialBaudRate 19200
+
+//#define sSerialRxPin 2  // Support interrupts.
+//#define sSerialTxPin 3  // Support interrupts.
+#define sSerialRxPin 10
+#define sSerialTxPin 11
+
+SoftwareSerial sSerial(sSerialRxPin, sSerialTxPin);
 
 const byte numChars = 64;
 char receivedChars[numChars];
@@ -42,8 +53,12 @@ void showParsedData(char controlValue);
 
 void commInit()
 {
-    Serial.begin(115200);
+    Serial.begin(SerialBaudRate);
     Serial.println("Comm init");
+
+    sSerial.begin(sSerialBaudRate);
+    Serial.println("Software Serial Comm init");
+
 }
 
 
@@ -77,9 +92,9 @@ void recvWithStartEndMarkers()
     char endMarker = '>';
     char rc;
 
-    while (Serial.available() > 0 && newData == false)
+    while (sSerial.available() > 0 && newData == false)
     {
-        rc = Serial.read();
+        rc = sSerial.read();
 
         if (recvInProgress == true)
         {
@@ -98,7 +113,8 @@ void recvWithStartEndMarkers()
                 newData = true;
             }
         }
-        else if (rc == startMarker) {
+        else if (rc == startMarker)
+        {
             recvInProgress = true;
         }
     }
@@ -202,7 +218,8 @@ MessageType parseData() {      // split the data into its parts
 
 //============
 
-void showParsedData(char controlValue) {
+void showParsedData(char controlValue)
+{
     Serial.print("Control Value ");
     Serial.println(controlValue);
     //Serial.print("Integer ");
