@@ -9,13 +9,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    heartbeatTimer = new QTimer();
+    heartbeatTimer->setSingleShot(false);
+    heartbeatTimer->setInterval(heartbeatPeriod_ms);
+    heartbeatTimer->start();
+
 #if CASA
-    QString IP_akouiVert = "192.168.1.69";
-    //QString IP_akouiVert = "192.168.1.70"; //ESP-01
-    //QString IP_akouiHor = "192.168.1.70"; //ESP-01
-    QString IP_akouiHor = "192.168.1.71"; //NodeMCU Mini D1
+    QString IP_akouiVert = "192.168.1.69"; //ESP-01
+    QString IP_akouiHor = "192.168.1.70"; //NodeMCU Mini D1
 #else
-    QString IP_akouiHor = "192.168.8.48";
+    QString IP_akouiHor  = "192.168.8.98";
     QString IP_akouiVert = "192.168.8.69";
 #endif
 
@@ -45,18 +48,13 @@ MainWindow::MainWindow(QWidget *parent)
      connect(akoui_ver->socket,  SIGNAL(disconnected()),
              akoui_ver, SLOT(getDisconnected())    );
 
+     connect(heartbeatTimer, SIGNAL(timeout()),
+             akoui_ver, SLOT(sendHeartbeat())    );
+
 #endif
 
     akoui_hor = new TCPClient(IP_akouiHor, port);
     akoui_hor->setConnectedCheckBox(ui->hostHor_connected_chk);
-
-    /*if(akoui_hor->isConnected())
-    {
-        ui->hostHor_connected_chk->setChecked(true);
-        //ui->hostHor_connected_chk->set
-    } else {
-        ui->hostHor_connected_chk->setChecked(false);
-    }*/
 
     connect(akoui_hor->socket,  SIGNAL(readyRead()),
             akoui_hor,          SLOT(onReadyRead())    );
@@ -69,6 +67,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(akoui_hor->socket,  SIGNAL(disconnected()),
             akoui_hor, SLOT(getDisconnected())    );
+
+    connect(heartbeatTimer, SIGNAL(timeout()),
+            akoui_hor, SLOT(sendHeartbeat())    );
+
+
+
+
 
 }
 

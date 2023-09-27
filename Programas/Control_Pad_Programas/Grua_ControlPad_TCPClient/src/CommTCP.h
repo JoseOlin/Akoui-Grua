@@ -1,16 +1,16 @@
 #ifndef COMMTCP_H
 #define COMMTCP_H
-/* ESP32 boards don’t work with ESP8266WiFi.h,
- * you have to use Wifi.h instead. */
 
 #include <Arduino.h>
 #include "Config.h"
 
 
+/* ESP32 boards don’t work with ESP8266WiFi.h,
+ * you have to use Wifi.h instead. */
 #ifdef ESP8266
-#include <ESP8266WiFi.h>
-#else
-#include <WiFi.h>
+    #include <ESP8266WiFi.h>
+#else //ESP32
+    #include <WiFi.h>
 #endif
 
 #include <WiFiClient.h>
@@ -19,33 +19,35 @@
 class CommTCP
 {
 public:
-    CommTCP();
+    CommTCP(int pinWifiConn, int pinSocketVerConn, int pinSocketHorConn);
 
-    #if commHttpActiva
-        String serverNameH = "http://192.168.1.70"; // Dirección del ESP para el movimiento horizontal
-        String serverNameV = "http://192.168.1.69"; // Dirección del ESP para el movimiento vertical
-    #elif commTcpActiva
+#if commHttpActiva
+    String serverNameH = "http://192.168.1.70"; // Dirección del ESP para el movimiento horizontal
+    String serverNameV = "http://192.168.1.69"; // Dirección del ESP para el movimiento vertical
+#elif commTcpActiva
 
-        #if CASA
-            //String serverName_Ver = "192.168.1.69";
-            //IPAddress IP_Ver;// (192,168, 1, 69);
+    #if CASA
+        //String serverName_Ver = "192.168.1.69";
+        //IPAddress IP_Ver;// (192,168, 1, 69);
 
-            //String serverName_Hor = "192.168.1.70";
-            //IPAddress IP_Hor; //(192, 168, 1, 70);
+        //String serverName_Hor = "192.168.1.70";
+        //IPAddress IP_Hor; //(192, 168, 1, 70);
 
-            const char *IPVerHost = "192.168.1.69";
-            const char *IPHorHost = "192.168.1.70";
-        #else
-            const char *IPHorHost = "192.168.8.48";
-        #endif
+        const char *IPHorHost = "192.168.1.71";
+        const char *IPVerHost = "192.168.1.72";
+    #else
+        const char *IPHorHost = "192.168.8.48";
     #endif
-
+#endif
 
     //void TCPEcho();
     void sendCommand(String serverS, const String command);
 
     //WiFiServer* serverH;
     //WiFiServer* serverV;
+    bool wifiConnected_flag = false;
+    bool clientHConnected_flag = false;
+    bool clientVConnected_flag = false;
 
     WiFiClient clientH;
     WiFiClient clientV;

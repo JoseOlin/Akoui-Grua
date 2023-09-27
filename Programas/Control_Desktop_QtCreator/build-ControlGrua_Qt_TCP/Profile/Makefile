@@ -54,11 +54,13 @@ OBJECTS_DIR   = ./
 
 SOURCES       = ../../ControlGrua_Qt_TCP/TcpClient.cpp \
 		../../ControlGrua_Qt_TCP/main.cpp \
-		../../ControlGrua_Qt_TCP/mainwindow.cpp moc_TcpClient.cpp \
+		../../ControlGrua_Qt_TCP/mainwindow.cpp qrc_Resources.cpp \
+		moc_TcpClient.cpp \
 		moc_mainwindow.cpp
 OBJECTS       = TcpClient.o \
 		main.o \
 		mainwindow.o \
+		qrc_Resources.o \
 		moc_TcpClient.o \
 		moc_mainwindow.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -245,7 +247,8 @@ Makefile: ../../ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro /usr/lib/x86_64-linux-
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		../../ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro
+		../../ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro \
+		../../ControlGrua_Qt_TCP/Resources.qrc
 	$(QMAKE) -o Makefile ../../ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro -spec linux-g++ CONFIG+=qml_debug CONFIG+=force_debug_info CONFIG+=separate_debug_info
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf:
@@ -332,6 +335,7 @@ Makefile: ../../ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro /usr/lib/x86_64-linux-
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf:
 ../../ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro:
+../../ControlGrua_Qt_TCP/Resources.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ../../ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro -spec linux-g++ CONFIG+=qml_debug CONFIG+=force_debug_info CONFIG+=separate_debug_info
 
@@ -346,6 +350,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
+	$(COPY_FILE) --parents ../../ControlGrua_Qt_TCP/Resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../../ControlGrua_Qt_TCP/TcpClient.hpp ../../ControlGrua_Qt_TCP/mainwindow.h $(DISTDIR)/
 	$(COPY_FILE) --parents ../../ControlGrua_Qt_TCP/TcpClient.cpp ../../ControlGrua_Qt_TCP/main.cpp ../../ControlGrua_Qt_TCP/mainwindow.cpp $(DISTDIR)/
@@ -373,8 +378,17 @@ check: first
 
 benchmark: first
 
-compiler_rcc_make_all:
+compiler_rcc_make_all: qrc_Resources.cpp
 compiler_rcc_clean:
+	-$(DEL_FILE) qrc_Resources.cpp
+qrc_Resources.cpp: ../../ControlGrua_Qt_TCP/Resources.qrc \
+		/usr/lib/qt5/bin/rcc \
+		../../ControlGrua_Qt_TCP/imgs/up.jpeg \
+		../../ControlGrua_Qt_TCP/imgs/right.jpeg \
+		../../ControlGrua_Qt_TCP/imgs/left.jpeg \
+		../../ControlGrua_Qt_TCP/imgs/down.jpeg
+	/usr/lib/qt5/bin/rcc -name Resources ../../ControlGrua_Qt_TCP/Resources.qrc -o qrc_Resources.cpp
+
 compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
@@ -412,7 +426,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -427,6 +441,9 @@ mainwindow.o: ../../ControlGrua_Qt_TCP/mainwindow.cpp ../../ControlGrua_Qt_TCP/m
 		../../ControlGrua_Qt_TCP/TcpClient.hpp \
 		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../../ControlGrua_Qt_TCP/mainwindow.cpp
+
+qrc_Resources.o: qrc_Resources.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_Resources.o qrc_Resources.cpp
 
 moc_TcpClient.o: moc_TcpClient.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_TcpClient.o moc_TcpClient.cpp

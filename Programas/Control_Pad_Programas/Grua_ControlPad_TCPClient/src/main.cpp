@@ -43,45 +43,57 @@ lib_deps =
 #include "JoystickShield.h"
 
 JoystickShield *joyShield;
-CommTCP *comm;
 
-unsigned int delayLoop = 40; // Evaluar si una frecuencia de lectura
+
+unsigned int loop_delay = 40; // Evaluar si una frecuencia de lectura
 // mayor a la del pad puede mejorar la lectura y evitar pérdida de comandos.
-unsigned int delayRequestParada = 5;
+unsigned int heartbeat_delay = 2000; // Periodo para enviar heartbeat a los módulos.
+unsigned int stealthMode_delay = 30000; // Delay to Turn off the LEDs
+
 
 
 void setup()
 {
     Serial.begin(115200);
+#if DEVMODE
     delay(500);
+#endif
     Serial.println("Comm init.");
 
-    comm = new CommTCP();
-    joyShield = new JoystickShield(comm); // calls configurePins() and new CommTCP();
-
-    //http.setConnectTimeout(500); //Tiempo en milisegundos.
+    joyShield = new JoystickShield(); // calls configurePins() and assing CommTCP();
+    joyShield->setLoopsToStealthMode(loop_delay, stealthMode_delay);
+    joyShield->setLoopsToHeartbeat(loop_delay, heartbeat_delay);
 
     #if commActiva
-    Serial.println("La comunicación WiFi está activa, se enviarán comandos a la Grúa.");
+        Serial.println("La comunicación WiFi está activa, se enviarán comandos a la Grúa.");
     #else
-    Serial.println("La comunicación WiFi está inactiva (Modo de Pruebas), NO se enviarán comandos a la Grúa.");
+        Serial.println("La comunicación WiFi está inactiva (Modo de Pruebas), NO se enviarán comandos a la Grúa.");
     #endif
+#if DEVMODE
+    delay(100);
+#endif
 }
 
 void loop()
 {
-    joyShield->leerJoystick();
-    joyShield->diplayJoystickValues();
 
     joyShield->leerBotones();
+    joyShield->leerJoystick();
+
+    joyShield->validarEstadoBotones(); // Given the current logic this should happen after leerJoystick()
+    joyShield->validarEstadoJoystick();
+
+    joyShield->diplayJoystickValues();
     joyShield->displayButtonsValues();
-    joyShield->validarEstadoBotones();
 
     joyShield->sendCommands();
-    //comm->TCPEcho();
+
+    joyShield->stealthModeCheck();
+    joyShield->sendHeartbeats();
+
     Serial.println("");
 
-    delay(delayLoop);
+    delay(loop_delay);
 }
 
 

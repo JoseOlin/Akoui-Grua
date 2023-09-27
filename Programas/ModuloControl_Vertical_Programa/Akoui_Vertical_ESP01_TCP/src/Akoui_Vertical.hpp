@@ -25,10 +25,7 @@ class Akoui
 public:
     // Prototypes:
 
-    MessageType msgType = MessageType::ClearedMessage;
-    MessageType lastMsg_Type = MessageType::ClearedMessage;
-
-    void init();
+    void init(int controlPeriod, unsigned long heartbeat_period);
     void pinsConfig();
     void startingActions();
     void evalContinuingActions();
@@ -43,9 +40,22 @@ public:
     void motorDriver(int power);
 
     void readLimits();
+    bool hearbeat_check(unsigned long currentTime, unsigned long lastHbeat_time);
+
+    MessageType msgType = MessageType::ClearedMessage;
+    MessageType lastMsg_Type = MessageType::ClearedMessage;
+
+    bool wifiConnected_flag = false;
+    bool clientConnected_flag = false;
+    bool messagePeriodExpired_delivered = false;
 private:
 
     //int pinPwm = 3; // NOTA: En caso de modificar, definir pines que soporten PWM.
+    // IN1 = D0  //Up o down
+    // IN2 = D6 // Cable blanco negro (Se activa junto con el movimiento en cualquier dirección).
+    // IN3 = D5 // Up o down
+    // IN4 = D7     // Paro emergencia
+#if ESP01
     int pinDown = 2;
     int pinUp = 0;
     // Si no se usará comunicación, los pines 1 y 3 pueden usarse como GPIO
@@ -56,6 +66,19 @@ private:
     // TODO: Revisar la documentación de la grúa para ver la función de este pin.
     uint8_t pinParo = 1;
     uint8_t pinBlancoNegro = 3; // Cuando la grúa se mueve en un sentido, este pin también debe activarse
+#elif ESPD1MINI
+
+    // Para bajar activar Relevador 1 y 3
+    // Para subir activar Relevador 2 y 3
+    //Considerar que con la grúa configurada con el cable en U
+    //las direcciones quedan invertidas
+
+    int pinUp = D0;             // Controla Relevador 1
+    int pinDown = D5;           // Controla Relevador 2
+    uint8_t pinBlancoNegro = D6; //Controla Relevador 3
+    uint8_t pinParo = D7;       // Controla Relevador 4
+#endif
+
 
     uint8_t flagUping, flagDowing;
     uint8_t flagEmergStop = 0;
@@ -71,11 +94,17 @@ private:
 
     unsigned long pwmIncrementDelay = 100;
 
-
+    // Heartbeat variables
+    unsigned long heartbeat_period;
 };
 
-void Akoui::init()
+void Akoui::init(int controlPeriod,
+                 unsigned long heartbeat_period)
 {
+    pinsConfig();
+
+    this->heartbeat_period = heartbeat_period;
+
     if(maxPower > 100) { maxPower = 100; }
     if(maxPower < 10 ) { maxPower = 10;  }
 
@@ -85,37 +114,37 @@ void Akoui::init()
 
 void Akoui::pinsConfig()
 {
-
-    /* The pin configuration for MC33296 driver */
-      // Configurar GPIO0 y GPIO2
+    // Configurar GPIO0 y GPIO2
     pinMode(pinUp, OUTPUT);
     pinMode(pinDown, OUTPUT);
+    pinMode(pinParo, OUTPUT);
+    pinMode(pinBlancoNegro, OUTPUT);
     //pinMode(pinPwm, OUTPUT);
 
-    // Los pines del ESP tienen lógica de activo en bajo. (Resistencia pull-up)
+
     #if ACTIVE_ON_HIGH
       digitalWrite(pinUp, LOW);
       digitalWrite(pinUp, LOW);
+      digitalWrite(pinParo, LOW);
+      digitalWrite(pinBlancoNegro, LOW);
     #else // Active on LOW.
       digitalWrite(pinUp, HIGH); // Activo en BAJO, inactivo en ALTO.
       digitalWrite(pinUp, HIGH);
+      digitalWrite(pinParo, HIGH); //Inactive in HIGH
+      digitalWrite(pinBlancoNegro, HIGH); //Inactive in HIGH
     #endif
 
-    // Configurar GPIO1
-    pinMode(pinParo, OUTPUT);
-    digitalWrite(pinParo, HIGH); //Inactive in HIGH
-    // Configurar GPIO3
-    pinMode(pinBlancoNegro, OUTPUT);
-    digitalWrite(pinBlancoNegro, HIGH); //Inactive in HIGH
 }
 
 void Akoui::startingActions()
 {
+
     if (msgType == MessageType::MoveUp && lastMsg_Type == MessageType::MoveUp)
     {
-
-        control(Direction::Negative, maxPower);
+        control(Direction::Positive, maxPower);
+#if DEBUG_MOVIMIENTO
         Serial.println("Move Up");
+#endif
 
         //msgType = MessageType::ClearedMessage;
         //lastMsgType = MessageType::MoveLeft;
@@ -123,9 +152,10 @@ void Akoui::startingActions()
 
     else if (msgType == MessageType::MoveDown && lastMsg_Type == MessageType::MoveDown)
     {
-
-        control(Direction::Positive, maxPower);
+        control(Direction::Negative, maxPower);
+#if DEBUG_MOVIMIENTO
         Serial.println("Move Down");
+#endif
 
         //msgType = MessageType::ClearedMessage;
         //lastMsgType = MessageType::MoveLeft;
@@ -133,23 +163,26 @@ void Akoui::startingActions()
 
     else if( msgType == MessageType::Stop )
     {
+#if DEBUG_MOVIMIENTO
         Serial.println("MsgT::Stop");
+#endif
         stop(false);
         //msgType = MessageType::ClearedMessage;
         //lastMsgType = MessageType::Stop;
     }
     else if( msgType == MessageType::EmergencyStop )
     {
+#if DEBUG_MOVIMIENTO
         Serial.println("Emergency Stop");
+#endif
         stop(true);
         //msgType = MessageType::ClearedMessage;
         //lastMsgType = MessageType::EmergencyStop;
     }
 
-
+/*
     else if (msgType == MessageType::MoveLeft && lastMsg_Type == MessageType::MoveLeft)
     {
-
         control(Direction::Negative, maxPower);
         Serial.println("MoveLeft");
 
@@ -164,7 +197,7 @@ void Akoui::startingActions()
         //msgType = MessageType::ClearedMessage;
         //lastMsgType = MessageType::MoveRight;
     }
-
+*/
 
 
     else if( msgType == MessageType::GoLimitL )
@@ -176,10 +209,6 @@ void Akoui::startingActions()
 
     }
     else if( msgType == MessageType::SetConfigData)
-    {
-
-    }
-    else if( msgType == MessageType::SetMotorPosition)
     {
 
     }
@@ -259,12 +288,10 @@ void Akoui::moveUp(unsigned int maxPower)
 {
 #if ACTIVE_ON_HIGH
     digitalWrite(pinDown, LOW);
-
     digitalWrite(pinUp, HIGH);
     digitalWrite(pinBlancoNegro, HIGH);
 #else
     digitalWrite(pinDown, HIGH);
-
     digitalWrite(pinUp, LOW);
     digitalWrite(pinBlancoNegro, LOW);
 #endif
@@ -275,12 +302,10 @@ void Akoui::moveDown(unsigned int maxPower)
 {
 #if ACTIVE_ON_HIGH
     digitalWrite(pinUp, LOW);
-
     digitalWrite(pinDown, HIGH);
     digitalWrite(pinBlancoNegro, HIGH);
-#else
+#else //Active on LOW
     digitalWrite(pinUp, HIGH);
-
     digitalWrite(pinDown, LOW);
     digitalWrite(pinBlancoNegro, LOW);
 #endif
@@ -296,7 +321,6 @@ void Akoui::stop(bool emergencyStop)
 #else //ACTIVE ON LOW
     digitalWrite(pinUp, HIGH);
     digitalWrite(pinDown, HIGH);
-
     digitalWrite(pinBlancoNegro, HIGH);
 #endif
 
@@ -318,11 +342,11 @@ void Akoui::control(Direction targetDir, unsigned int maxPower)
 
     if(targetDir == Direction::Negative) // To the origin (bed)
     {
-        moveUp(maxPower);
+        moveDown(maxPower);
     }
     else if (targetDir == Direction::Positive)
     {
-        moveDown(maxPower);
+        moveUp(maxPower);
     }
 
     else if (targetDir == Direction::Stopped)
@@ -362,4 +386,13 @@ void Akoui::readLimits()
     //valorLimiteDer = digitalRead(limiteDer);
 }
 
+bool Akoui::hearbeat_check(unsigned long currentTime, unsigned long lastHbeat_time)
+{
+    if(currentTime - lastHbeat_time >= heartbeat_period)
+    {
+        return false;
+    }
+
+    return true;
+}
 #endif // MOVIMIENTO_HPP

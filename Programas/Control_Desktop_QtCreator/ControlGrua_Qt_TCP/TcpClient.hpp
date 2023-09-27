@@ -18,6 +18,7 @@ public:
 
     QTcpSocket *socket; // Needs to be public to connect
     QTimer *timer;
+
     QByteArray iterativeData;
 
     bool isConnected();
@@ -29,11 +30,15 @@ public slots:
     void sendDataIteratively();
     void getConnected();
     void getDisconnected();
+
+    void sendHeartbeat();
 private:
     QString IP;
     int port;
     int messagesPeriod_ms = 80;
     bool socketConnected = false;
+    QByteArray hearbeatMsg = "<H>";
+
     QCheckBox *connected_chk;
 };
 

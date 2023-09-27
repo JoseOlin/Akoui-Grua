@@ -24,7 +24,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+    QTimer *heartbeatTimer;
+    int heartbeatPeriod_ms = 2000;
 
 private slots:
     //    void on_btnSubir_clicked();
@@ -48,6 +49,7 @@ private:
     Ui::MainWindow *ui;
     //QNetworkAccessManager *manager = new QNetworkAccessManager();
     //QNetworkRequest request;
+
 
     TCPClient *akoui_hor;
     TCPClient *akoui_ver;

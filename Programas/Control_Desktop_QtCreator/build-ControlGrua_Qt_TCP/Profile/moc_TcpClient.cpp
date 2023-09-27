@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_TCPClient_t {
-    QByteArrayData data[11];
-    char stringdata0[131];
+    QByteArrayData data[12];
+    char stringdata0[145];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -41,13 +41,14 @@ QT_MOC_LITERAL(6, 68, 8), // "sendData"
 QT_MOC_LITERAL(7, 77, 4), // "data"
 QT_MOC_LITERAL(8, 82, 19), // "sendDataIteratively"
 QT_MOC_LITERAL(9, 102, 12), // "getConnected"
-QT_MOC_LITERAL(10, 115, 15) // "getDisconnected"
+QT_MOC_LITERAL(10, 115, 15), // "getDisconnected"
+QT_MOC_LITERAL(11, 131, 13) // "sendHeartbeat"
 
     },
     "TCPClient\0setConnectedCheckBox\0\0"
     "QCheckBox*\0connectd_chk\0onReadyRead\0"
     "sendData\0data\0sendDataIteratively\0"
-    "getConnected\0getDisconnected"
+    "getConnected\0getDisconnected\0sendHeartbeat"
 };
 #undef QT_MOC_LITERAL
 
@@ -57,7 +58,7 @@ static const uint qt_meta_data_TCPClient[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -65,17 +66,19 @@ static const uint qt_meta_data_TCPClient[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   44,    2, 0x0a /* Public */,
-       5,    0,   47,    2, 0x0a /* Public */,
-       6,    1,   48,    2, 0x0a /* Public */,
-       8,    0,   51,    2, 0x0a /* Public */,
-       9,    0,   52,    2, 0x0a /* Public */,
-      10,    0,   53,    2, 0x0a /* Public */,
+       1,    1,   49,    2, 0x0a /* Public */,
+       5,    0,   52,    2, 0x0a /* Public */,
+       6,    1,   53,    2, 0x0a /* Public */,
+       8,    0,   56,    2, 0x0a /* Public */,
+       9,    0,   57,    2, 0x0a /* Public */,
+      10,    0,   58,    2, 0x0a /* Public */,
+      11,    0,   59,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
     QMetaType::Void,
     QMetaType::LongLong, QMetaType::QByteArray,    7,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -96,6 +99,7 @@ void TCPClient::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 3: _t->sendDataIteratively(); break;
         case 4: _t->getConnected(); break;
         case 5: _t->getDisconnected(); break;
+        case 6: _t->sendHeartbeat(); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -141,13 +145,13 @@ int TCPClient::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 7)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 7;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 6)
+        if (_id < 7)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 7;
     }
     return _id;
 }

@@ -1,6 +1,6 @@
 #include "CommTCP.h"
 
-CommTCP::CommTCP()
+CommTCP::CommTCP(int pinWifiConn, int pinSocketVerConn, int pinSocketHorConn)
 {
     WiFi.begin(ssid, password);
 
@@ -10,31 +10,19 @@ CommTCP::CommTCP()
         delay(500);
         Serial.print(".");
     }
+    wifiConnected_flag = true;
+    digitalWrite(pinWifiConn, wifiConnected_flag);
 
     Serial.print("Connected to WiFi network with IP Address: ");
     Serial.println(WiFi.localIP());
 
-
-    //int maxClients = 4;
-    //Serial.println("Creating ServerV");
-    //IP_Ver = IPAddress(192, 168, 1, 69);
-    //serverV = new WiFiServer(IP_Ver, puertoV, maxClients);
-    //serverV->begin();
 #if CASA
-    Serial.print("Akoui_Ver: "); Serial.print(IPVerHost); Serial.print(", Puerto: "); Serial.println(puertoV);
-#endif
-    //Serial.println("Creating ServerH");
-    //IP_Hor = IPAddress(192, 168, 1, 88); //TODO: Check IP_Hor
-    //serverH = new WiFiServer(IP_Hor, puertoH, maxClients);
-    //serverH->begin();
-    Serial.print("Akoui_Hor: "); Serial.print(IPHorHost); Serial.print(", Puerto: "); Serial.println(puertoH);
-
-
-    Serial.println("Connecting ClientV");
-    //clientV = serverV->available();
-    #if CASA
+    Serial.print("Akoui_Ver: "); Serial.print(IPVerHost);
+    Serial.print(", Puerto: "); Serial.println(puertoV);
+    Serial.println("Connecting ClientV...");
     clientV.connect(IPVerHost, puertoV);
-    int contV = 0;
+
+    int clientV_connTrialsCounter = 0;
     while(!clientV.connected())
     {
         //clientV = serverV->available();
@@ -44,32 +32,45 @@ CommTCP::CommTCP()
             Serial.println("ClientV connected");
             break;
         }*/
+
         Serial.print(".");
         delay(500);
 
-        contV++;
-        if(contV > 8)
+        clientV_connTrialsCounter++;
+        if(clientV_connTrialsCounter > 8)
         {
             Serial.println("ClientV not responding");
             break;
         }
     }
-    #endif
+    if(clientV_connTrialsCounter <= 8) // If less than 8 it get connected.
+    {
+        Serial.println("ClientV Connected");
+        clientVConnected_flag = true;
+        digitalWrite(pinSocketVerConn, clientVConnected_flag);
+    }
+#endif
 
+    Serial.print("Akoui_Hor: "); Serial.print(IPHorHost);
+    Serial.print(", Puerto: "); Serial.println(puertoH);
     Serial.println("Connecting ClientH");
-    //clientH = serverH->available();
     clientH.connect(IPHorHost, puertoH);
-    int contH = 0;
+    int clientH_connTrialsCounter = 0;
     while(!clientH.connected())
     {
         Serial.print(".");
         delay(500);
-        contH++;
-        if(contH > 8)
+        clientH_connTrialsCounter++;
+        if(clientH_connTrialsCounter > 8)
         {
             Serial.println("ClientH not responding");
             break;
         }
+    }
+    if(clientH_connTrialsCounter <= 8)
+    {
+        clientHConnected_flag = true;
+        digitalWrite(pinSocketHorConn, HIGH);
     }
 
 }
@@ -100,58 +101,59 @@ void CommTCP::TCPEcho()
     }
 }*/
 
-void CommTCP::sendCommand(String hostKey, String command)
+void CommTCP::sendCommand(String host_key, String command)
 {
-    if(hostKey == "H")
+    if(host_key == "H")
     {
         //clientH = serverH->available();
-        if(clientH)
-        {
-            if (clientH.connected())
-            {
-                Serial.println("clientH Connected.");
-                //serverH->print(command);
-                clientH.print(command);
+        if(clientH) {
+            if (clientH.connected()) {
+                #if commVerbose
+                    Serial.print(", ClientH Connected.");
+                #endif
+
+                #if commActiva
+                    //serverH->print(command);
+                    clientH.println(command);
+                #endif
             }
-            else
-            {
-                Serial.println("clienteH not connected.");
+            else {
+#if commVerbose
+                Serial.print(", ClientH NOT connected.");
+#endif
             }
         }
-        else
-        {
+        else {
 
         }
     }
-    else if (hostKey == "V")
-    {
+    else if (host_key == "V") {
         //clientV = serverV->available();
         if(clientV)
         {
-            if (clientV.connected())
-            {
+            if (clientV.connected()) {
                 #if commVerbose
-                Serial.println(", ClientV Connected");
+                    Serial.print(", ClientV Connected");
                 #endif
-                //serverV->print(command);
+
                 #if commActiva
-                clientV.print(command);
-                //clientV.write(command);
+                    clientV.println(command);
+                    //clientV.write(command);
                 #endif
             }
-            else
-            {
-                Serial.println("clienteV not connected.");
+            else {
+                #if commVerbose
+                    Serial.print("ClientV not connected.");
+                #endif
             }
         }
-        else
-        {
-            Serial.println("!clienteV");
+        else {
+            Serial.print(", !clienteV");
         }
     }
     else
     {
-        Serial.println("Host Key not valid.");
+        Serial.println(", Host Key not valid.");
     }
 }
 

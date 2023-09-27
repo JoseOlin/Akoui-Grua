@@ -4,7 +4,9 @@ deploy:
 	platformio run --target upload
 monitor:
 	platformio device monitor
-#
+#test:
+#	platformio test -e <environment>
+
 # regenerate project files to reflect platformio.ini changes
 project-update:
 	@echo "This will overwrite project metadata files.  Are you sure? [y/N] " \

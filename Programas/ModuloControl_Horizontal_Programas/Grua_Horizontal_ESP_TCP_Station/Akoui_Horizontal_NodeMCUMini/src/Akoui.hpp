@@ -24,7 +24,8 @@ public:
     MessageType msgType = MessageType::ClearedMessage;
     MessageType lastMsg_Type = MessageType::ClearedMessage;
 
-    void init(int controlPeriod);
+    void init(int controlPeriod, int maxPower,
+              int stealthMode_delay, unsigned long hbeat_period);
     void pinsConfig();
     void startingActions();
     void evalContinuingActions();
@@ -40,14 +41,34 @@ public:
     void motorDriver(int power);
 
     void readLimits();
+    int pinLEDWifiConnected = D2; // Amarillo
+    int pinLEDClientConnected = D3; // Verde
+    bool wifiConnected_flag = false;
+    bool clientConnected_flag = false;
+
+    bool messagePeriodExpired_delivered = false;
+
+    unsigned loopsToStealthMode_counter = 0;
+
+    void setLoopsToStealthMode(unsigned long loop_delay, unsigned long stealthMode_delay);
+    //void stealthModeCheck();
+    void stealthModeCheck(unsigned long lastStealthModeCheck_time, unsigned long current_time);
+    void turnOffLEDs();
+    void setConnectionStatusLEDs();
+    void wirelessCommInit();
+    void setLoopsToHeartbeatCheck(unsigned long loop_delay, unsigned long hearbeat_period);
+    bool hearbeat_check(unsigned long currentTime, unsigned long lastHbeat_time);
 private:
     // Pines Software Serial Rx=2, Tx=3
-    //int pinPwm = 3; // No usar D3 pues es GPIO0 y debe estar en LOW en el arranque.
-    //int pinIzquierda = 4;
+    //int pinPwm = 3; // Preferible No usar D3 pues es GPIO0 y debe estar en LOW en el arranque.
     int pinIzquierda = D4;
     int pinDerecha = D5;
-    int pinStatusFlag = D6;
     int pinPwm = D7; // NOTA: En caso de modificar, definir pines que soporten PWM.
+    int pinStatusFlag = D6;
+    int pinFeedback = A0;
+    
+    // LEDs pins
+    // LED Rojo a 3.3V
 
     bool accelerating = false;
     char messageType_car;
@@ -61,27 +82,58 @@ private:
 
     //unsigned long pwmIncrementDelay = 20;
 
+    // Stealth Mode (Turn Odd LEDs) Variables
+    unsigned int loopsToStealthMode;
+    unsigned long stealthModeCheck_period;
+
+    // Heartbeat variables
+    unsigned long heartbeat_period;
+    //unsigned int loopsToHeartbeat;
 };
 
-void Akoui::init(int controlPeriod)
+void Akoui::init(int controlPeriod,
+                 int maxPower,
+                 int stealthMode_delay,
+                 unsigned long heartbeat_period)
 {
+
+    pinsConfig();
+
+    wirelessCommInit();
+
+    setLoopsToStealthMode(controlPeriod, stealthMode_delay);
+
+    this->heartbeat_period = heartbeat_period;
+
+
     if(maxPower > 100) { maxPower = 100; }
     if(maxPower < 10 ) { maxPower = 10;  }
 
     maxPwm = maxPower * 2.55;
 
     pwmIncrement = maxPwm / (accelTime/controlPeriod);
+    this->maxPower = maxPower;
+
     Serial.print("pwmIncrement: "); Serial.println(pwmIncrement);
+    Serial.print("maxPower: ");     Serial.println(this->maxPower);
 }
 
 void Akoui::pinsConfig()
 {
     /* The pin configuration for MC33296 driver */
       // Configurar GPIO0 y GPIO2
+    pinMode(pinPwm, OUTPUT);
     pinMode(pinIzquierda, OUTPUT);
     pinMode(pinDerecha, OUTPUT);
-    pinMode(pinPwm, OUTPUT);
-    //pinMode(pinStatusFlag, INPUT);
+
+    pinMode(pinLEDWifiConnected, OUTPUT);
+    pinMode(pinLEDClientConnected, OUTPUT);
+    pinMode(pinStatusFlag, INPUT);
+
+
+    digitalWrite(pinLEDWifiConnected, LOW);
+    digitalWrite(pinLEDClientConnected, LOW);
+    analogWrite(pinPwm, 0);
 
     #if ACTIVE_ON_HIGH
       digitalWrite(pinIzquierda, LOW);
@@ -89,15 +141,61 @@ void Akoui::pinsConfig()
     #else // Active on LOW.
       digitalWrite(pinIzquierda, HIGH); // Activo en BAJO, inactivo en ALTO.
       digitalWrite(pinDerecha, HIGH);
-      digitalWrite(pinPwm, HIGH);
     #endif
+}
+
+void Akoui::wirelessCommInit()
+{
+
+    Serial.print("Connecting to SSID ");
+#if CASA
+    Serial.println("CASA");
+#else
+    Serial.println("BASE");
+#endif
+
+    WiFi.mode(WIFI_STA); // Configurar como Station (Instead of Acces Point)
+    WiFi.begin(ssid, password); // Connect to WiFi
+
+    // Wait for connection
+    while( WiFi.status() != WL_CONNECTED )
+    {
+        digitalWrite(pinLEDWifiConnected, HIGH);
+        delay(500);
+        digitalWrite(pinLEDWifiConnected, LOW);
+        Serial.print(".");
+    }
+    wifiConnected_flag = true;
+    digitalWrite(pinLEDWifiConnected, HIGH);
+
+#if BOOT_MESSAGES
+    Serial.println("");
+    Serial.print("Conectado a ");
+    Serial.println(ssid);
+
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+
+    Serial.print(" on port ");
+    Serial.println(port);
+#endif
+
+    server.begin();
+
+    if(!client)
+    {
+        Serial.println("!client");
+    }
+    else{
+        Serial.println("client from the very beginning");
+    }
+
 }
 
 void Akoui::startingActions()
 {
     if (msgType == MessageType::MoveLeft && lastMsg_Type == MessageType::MoveLeft)
     {
-
         control(Direction::Negative, maxPower);
         Serial.println("MoveLeft");
 
@@ -140,14 +238,10 @@ void Akoui::startingActions()
     {
 
     }
-    else if( msgType == MessageType::SetMotorPosition)
-    {
-
-    }
 
     else
     {
-        Serial.println("No message Stop");
+        Serial.println("No message. Stop");
         stop(false);
     }
 
@@ -157,7 +251,6 @@ void Akoui::evalContinuingActions()
 {
     if (lastMsg_Type == MessageType::MoveLeft )
     {
-
         control(Direction::Negative, maxPower);
 
         //msgType = MessageType::ClearedMessage;
@@ -259,9 +352,6 @@ void Akoui::moveRight(unsigned int maxPower)
 }
 void Akoui::stop(bool emergencyStop)
 {
-
-
-
     if(emergencyStop)
     {
         analogWrite(pinPwm, 0);
@@ -334,6 +424,60 @@ void Akoui::readLimits()
 {
     //valorLimiteIzq = digitalRead(limiteIzq); // Normalmente HIGH. LOW cuando se activan.
     //valorLimiteDer = digitalRead(limiteDer);
+}
+
+
+void Akoui::setLoopsToStealthMode(unsigned long loop_delay,
+                                  unsigned long stealthMode_delay)
+{
+    this->stealthModeCheck_period = stealthMode_delay;
+    loopsToStealthMode = stealthMode_delay / loop_delay;
+    Serial.print("loopsToStealthMode: "); Serial.println(loopsToStealthMode);
+
+}
+
+void Akoui::setLoopsToHeartbeatCheck(unsigned long loop_delay, unsigned long heartbeat_period)
+{
+    this->heartbeat_period = heartbeat_period;
+    //loopsToHeartbeat = this->heartbeat_period / loop_delay;
+}
+
+void Akoui::stealthModeCheck(unsigned long lastStealthModeCheck_time,
+                             unsigned long current_time)
+{
+    //if(loopsToStealthMode_counter > loopsToStealthMode)
+    if(current_time - lastStealthModeCheck_time >= this->stealthModeCheck_period)
+    {
+        turnOffLEDs();
+    }
+    else
+    {
+        setConnectionStatusLEDs();
+        //loopsToStealthMode_counter++;
+    }
+}
+
+bool Akoui::hearbeat_check(unsigned long currentTime, unsigned long lastHbeat_time)
+{
+    if(currentTime - lastHbeat_time >= heartbeat_period)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+
+void Akoui::turnOffLEDs()
+{
+    digitalWrite(pinLEDWifiConnected, LOW);
+    digitalWrite(pinLEDClientConnected, LOW);
+
+}
+void Akoui::setConnectionStatusLEDs()
+{
+    digitalWrite(pinLEDWifiConnected, wifiConnected_flag);
+    digitalWrite(pinLEDClientConnected, clientConnected_flag);
 }
 
 #endif // MOVIMIENTO_HPP

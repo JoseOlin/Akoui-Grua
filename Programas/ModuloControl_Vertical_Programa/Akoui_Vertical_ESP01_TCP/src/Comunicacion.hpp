@@ -6,9 +6,8 @@
 
 #include <ESP8266WiFi.h>
 
-//#include <SoftwareSerial.h>
-
 #define SerialBaudRate 115200
+
 //#define sSerialBaudRate 19200
 
 //#define sSerialRxPin 10
@@ -48,8 +47,7 @@ enum MessageType {
     ClearedMessage = 0,
 
     MoveLeft        = 1,
-    MoveRight       = 2, // Slide and optionally Track.
-
+    MoveRight       = 2,
     MoveUp          = 3,
     MoveDown        = 4,
     Stop            = 5,
@@ -59,8 +57,10 @@ enum MessageType {
     GoLimitR        = 8,
     GoLimitUp       = 9,
     GoLimitDown     = 10,
+
     SetConfigData   = 11,
-    SetMotorPosition = 8
+
+    Heartbeat = 12,
 };
 
 // MoveUp,          <u>
@@ -78,10 +78,13 @@ void showParsedData(char controlValue);
 void commInit()
 {
     Serial.begin(SerialBaudRate);
+#if BOOT_MESSAGES
     delay(500);
+
     Serial.println("Comm init");
 
     Serial.println("Connecting to Wifi");
+#endif
 
     WiFi.mode(WIFI_STA); // Configurar como Station (Instead of Acces Point)
     WiFi.begin(ssid, password); // Connect to WiFi
@@ -105,8 +108,10 @@ void commInit()
     Serial.println(port);
 #endif
 
+#if BOOT_MESSAGES
+    delay(100);
+#endif
     server.begin();
-    delay(500);
 }
 
 
@@ -177,6 +182,8 @@ void recvWithStartEndMarkers()
 MessageType parseData() {      // split the data into its parts
     // Split the data and store it in variables
 /*    La cadena que se recibe por serial empieza con alguno de los siguientes caracteres.
+    H: Heartbeat
+
     l: Move Left.
     r: Move right.
     u: Up
@@ -189,20 +196,24 @@ MessageType parseData() {      // split the data into its parts
     C: Configuration data.
     M: Movimiento de los motores.
 */
-    if(parsingBuffer[0] == 'u')
+
+    if(parsingBuffer[0] == 'H')
+    {
+        return MessageType::Heartbeat;
+    }
+
+    else if(parsingBuffer[0] == 'u')
     {
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::MoveUp**");
         #endif
         return MessageType::MoveUp;
     }
-
     else if(parsingBuffer[0] == 'd')
     {
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::MoveDown**");
         #endif
-
         return MessageType::MoveDown;
     }
 
@@ -211,60 +222,37 @@ MessageType parseData() {      // split the data into its parts
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::Stop**");
         #endif
-
         return MessageType::Stop;
     }
-
     else if(parsingBuffer[0] == 'E')
     {
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::EmergencyStop**");
         #endif
-
         return MessageType::EmergencyStop;
     }
-
-
-
-
 
     else if (parsingBuffer[0] == 'L')
     {
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::GoLimitL**");
         #endif
-        //parseSetSliderPosition();
         return MessageType::GoLimitL;
     }
-
-    else if(parsingBuffer[0] == 'R')
+    else if(parsingBuffer[0]  == 'R')
     {
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::GoLimitR**");
         #endif
-
         return MessageType::GoLimitR;
     }
 
-    else if(parsingBuffer[0] == 'C')
+    else if(parsingBuffer[0]  == 'C')
     {
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::SetConfigData**");
         #endif
-        // parseConfigData();
-
         return MessageType::SetConfigData;
-    }
-
-    else if(parsingBuffer[0] == 'M')
-    {
-        #if DEBUG_MESSAGE_TYPES
-        Serial.println("**MessageType::SetMotorPosition**");
-        #endif
-
-        //parseDataMotor(nMotor_temp, accel_temp, speed_temp, targetPos_temp);
-
-        return MessageType::SetMotorPosition;
     }
 
     #if DEBUG_MESSAGE_TYPES

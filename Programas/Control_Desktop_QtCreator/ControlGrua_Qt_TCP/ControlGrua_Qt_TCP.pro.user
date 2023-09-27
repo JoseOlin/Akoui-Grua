@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.0, 2022-08-12T21:02:11. -->
+<!-- Written by QtCreator 4.11.0, 2022-11-24T18:43:22. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -283,8 +283,8 @@
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">ControlGrua_Qt_TCP2</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Repositorio_Akoui_Github/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/media/Ext4/Proyectos/Empresas/Olin Robotics/3_Grua_Akoui/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/Ext4/Proyectos/Empresas/Olin Robotics/3_Grua_Akoui/Programas/Control_Desktop_QtCreator/ControlGrua_Qt_TCP/ControlGrua_Qt_TCP.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>

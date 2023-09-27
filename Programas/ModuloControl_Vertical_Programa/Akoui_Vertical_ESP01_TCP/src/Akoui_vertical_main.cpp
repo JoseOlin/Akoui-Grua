@@ -13,14 +13,20 @@ Akoui akoui;
 unsigned long lastTime = 0;
 unsigned long currentTime = 0;
 unsigned long lastMsg_Time = 0;
+unsigned long lastHbeat_time = 0;
 
-unsigned int controlPeriod = 40;
-unsigned int messageExpiredPeriod = 320;
+unsigned int controlPeriod = 50;
+unsigned int messageExpiredPeriod = 300;
+
 unsigned int periodsToMessage;
 unsigned int periodsToMessage_Cnt;
 
 bool mainInit()
 {
+    commInit();
+
+    akoui.init(controlPeriod, heartbeat_period);  // Si el akoui.init se pone antes del commInit tarda más con el falso positivo en la grúa.
+
     if(messageExpiredPeriod >= controlPeriod)
     {
         periodsToMessage = messageExpiredPeriod / controlPeriod;
@@ -37,9 +43,7 @@ bool mainInit()
 
 void setup()
 {
-    commInit();
 
-    akoui.pinsConfig();
     mainInit();
 
     lastTime = millis();
@@ -47,12 +51,23 @@ void setup()
 
 void loop()
 {
-    client = server.available();
-    if(client)
+    if(!client)
+    {
+        client = server.available();
+        delay(500);
+        //Serial.print(".");
+    }
+    else
     {
         if(client.connected())
         {
             Serial.println("Client Connected");
+            akoui.clientConnected_flag = true;
+            lastHbeat_time = millis();
+        }
+        else{
+            //Serial.println("No Client Connected");
+            akoui.clientConnected_flag = false;
         }
 
 
@@ -64,38 +79,44 @@ void loop()
 
             if(newMsg)
             {
-                lastMsg_Time = millis();
+                if(akoui.msgType == MessageType::Heartbeat)
+                {
+                    lastHbeat_time = millis();
+                    //Serial.println("Hbeat");
+                }
+                else {
+                    lastMsg_Time = millis();
+                    //Serial.println("New message");
+                }
 
-                //enterControlLoop = true;
-
-                Serial.print(",New message");
-                //akoui.startingActions(msgType, lastMsg_Type);
+                akoui.messagePeriodExpired_delivered = false;
             }
 
             if( (currentTime - lastTime) >= controlPeriod ) // Control synced loop (20 ms).
             {
-
-                /*if( (periodsToMessage_Cnt > periodsToMessage)  ) // Messages synced loop (200 ms).
-                {
-
-                    periodsToMessage_Cnt = 0;
-                }
-
-                periodsToMessage_Cnt++;
-        */
-
                 if( (currentTime - lastMsg_Time) >= messageExpiredPeriod )
                 {
                     // Stop Akoui.
                     akoui.stop(false);
-                    Serial.println("MessagePeriod expired. Stopping.");
+                    client.flush(); // Probar si el flush permite validar desconexión. Nop.
+                    if(!akoui.messagePeriodExpired_delivered)
+                    {
+                        //Serial.println("MessagePeriod expired. Stopping.");
+                        akoui.messagePeriodExpired_delivered = true;
+                    }
                 }
                 else
                 {
-                    //akoui.evalContinuingActions();
                     akoui.startingActions();
                 }
 
+                //setConnectionStatusLEDs();
+
+                if(!akoui.hearbeat_check(currentTime, lastHbeat_time))
+                {
+                    //Serial.println("No se recibió el heartbeat");
+                    client.stop();
+                }
                 lastTime = currentTime;
             }
 
@@ -107,6 +128,7 @@ void loop()
 
         client.stop();
         Serial.println("Client disconnected");
+        //digitalWrite(akoui.pinLEDClientConnected, LOW);
     }
 
     akoui.stop(false);

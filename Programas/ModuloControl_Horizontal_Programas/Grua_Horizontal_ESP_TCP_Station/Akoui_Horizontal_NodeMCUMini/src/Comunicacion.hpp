@@ -47,14 +47,20 @@ enum MessageType {
     ClearedMessage = 0,
 
     MoveLeft    = 1,
-    MoveRight   = 2, // Slide and optionally Track.
-    Stop        = 3,
-    EmergencyStop = 4,
+    MoveRight   = 2,
+    MoveUp      = 3,
+    MoveDown    = 4,
+    Stop        = 5,
+    EmergencyStop = 6,
 
-    GoLimitL = 5,
-    GoLimitR = 6,
-    SetConfigData = 7,
-    SetMotorPosition = 8
+    GoLimitL    = 7,
+    GoLimitR    = 8,
+    GoLimitUp   = 9,
+    GoLimitDown = 10,
+
+    SetConfigData = 11,
+
+    Heartbeat = 12,
 };
 
 // MoveLeft,        <l>
@@ -67,52 +73,12 @@ MessageType parseData();
 void showParsedData(char controlValue);
 
 
-void commInit()
+void commSerial_Init()
 {
     Serial.begin(SerialBaudRate);
-    delay(1000);
+    delay(100);
     Serial.println("Comm init");
 
-    Serial.print("Connecting to SSID ");
-#if CASA
-    Serial.println("CASA");
-#else
-    Serial.println("BASE");
-#endif
-    //Serial.println(ssid);
-
-    WiFi.mode(WIFI_STA); // Configurar como Station (Instead of Acces Point)
-    WiFi.begin(ssid, password); // Connect to WiFi
-
-    // Wait for connection
-    while( WiFi.status() != WL_CONNECTED )
-    {
-        delay(500);
-        Serial.print(".");
-    }
-
-#if BOOT_MESSAGES
-    Serial.println("");
-    Serial.print("Conectado a ");
-    Serial.println(ssid);
-
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-
-    Serial.print(" on port ");
-    Serial.println(port);
-#endif
-
-    server.begin();
-
-    /*client = server.available();
-    if(client)
-    {
-        if(client.connected())
-        {
-          Serial.println("Client Connected");
-        }
-    }*/
 }
 
 
@@ -183,6 +149,7 @@ void recvWithStartEndMarkers()
 MessageType parseData() {      // split the data into its parts
     // Split the data and store it in variables
 /*    La cadena que se recibe por serial empieza con alguno de los siguientes caracteres.
+    H: Heartbeat
     l: Move Left.
     r: Move right.
     S: Stop.
@@ -193,7 +160,12 @@ MessageType parseData() {      // split the data into its parts
     C: Configuration data.
     M: Movimiento de los motores.
 */
-    if(parsingBuffer[0] == 'l')
+    if(parsingBuffer[0] == 'H')
+    {
+        return MessageType::Heartbeat;
+    }
+
+    else if(parsingBuffer[0] == 'l')
     {
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::MoveLeft**");
@@ -206,7 +178,6 @@ MessageType parseData() {      // split the data into its parts
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::MoveRight**");
         #endif
-
         return MessageType::MoveRight;
     }
 
@@ -215,7 +186,6 @@ MessageType parseData() {      // split the data into its parts
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::Stop**");
         #endif
-
         return MessageType::Stop;
     }
 
@@ -224,12 +194,8 @@ MessageType parseData() {      // split the data into its parts
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::EmergencyStop**");
         #endif
-
         return MessageType::EmergencyStop;
     }
-
-
-
 
 
     else if (parsingBuffer[0] == 'L')
@@ -246,7 +212,6 @@ MessageType parseData() {      // split the data into its parts
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::GoLimitR**");
         #endif
-
         return MessageType::GoLimitR;
     }
 
@@ -255,21 +220,9 @@ MessageType parseData() {      // split the data into its parts
         #if DEBUG_MESSAGE_TYPES
         Serial.println("**MessageType::SetConfigData**");
         #endif
-        // parseConfigData();
-
         return MessageType::SetConfigData;
     }
 
-    else if(parsingBuffer[0] == 'M')
-    {
-        #if DEBUG_MESSAGE_TYPES
-        Serial.println("**MessageType::SetMotorPosition**");
-        #endif
-
-        //parseDataMotor(nMotor_temp, accel_temp, speed_temp, targetPos_temp);
-
-        return MessageType::SetMotorPosition;
-    }
 
     #if DEBUG_MESSAGE_TYPES
     Serial.println("Error: Unexpected character received in parseData()");

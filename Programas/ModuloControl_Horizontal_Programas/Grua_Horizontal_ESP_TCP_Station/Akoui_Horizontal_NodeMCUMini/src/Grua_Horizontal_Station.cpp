@@ -19,18 +19,22 @@ Si no se recibe ningun valor, la grúa se detiene.
 unsigned long lastTime = 0;
 unsigned long currentTime = 0;
 unsigned long lastMsg_Time = 0;
+unsigned long lastHbeat_time = 0;
+unsigned long lastStealthMode_time = 0;
 
-unsigned int controlPeriod = 50;
-unsigned int messagesPeriod = 300;
 unsigned int periodsToMessage;
 unsigned int periodsToMessage_Cnt;
 
-bool enterControlLoop = false;
+//bool enterControlLoop = false;
 
 Akoui akoui;
 
 bool mainInit()
 {
+    commSerial_Init();
+
+    akoui.init(controlPeriod, maxPower, stealthMode_delay, heartbeat_period);
+
     if(messagesPeriod >= controlPeriod)
     {
         periodsToMessage = messagesPeriod / controlPeriod;
@@ -47,75 +51,99 @@ bool mainInit()
 
 void setup()
 {
-    commInit();
-
-    /*for(int ii=0; ii<8; ii++)
+    if(!mainInit())
     {
-        Serial.print("Encendiendo pin "); Serial.println(ii);
-        pinMode(ii, OUTPUT);
-        digitalWrite(ii, HIGH);
-        delay(2500);
-        digitalWrite(ii, LOW);
-    }*/
+        Serial.println("Some error ocurred on mainInit()");
+    }
 
-    akoui.pinsConfig();
-    akoui.init(controlPeriod);
-    mainInit();
-    delay(3000);
-
+#if DEVMODE
+    delay(1500);
+#endif
 
     lastTime = millis();
+    lastHbeat_time = millis();
+    lastStealthMode_time = millis();
+
+    Serial.println("Esperando cliente...");
 }
+
 
 void loop() 
 {
 
-    client = server.available();
-    if(client)
+    if(!client)
     {
-        if(client.connected())
-        {
+        client = server.available();
+        delay(1000);
+        Serial.print(".");
+    }
+    else
+    {
+        if(client.connected()) {
             Serial.println("Client Connected");
+            //digitalWrite(akoui.pinLEDClientConnected, HIGH);
+            akoui.clientConnected_flag = true;
+            lastHbeat_time = millis();
+
+            lastStealthMode_time = millis();
+        }
+        else{
+            Serial.println("No Client Connected");
+            //digitalWrite(akoui.pinLEDClientConnected, LOW);
+            akoui.clientConnected_flag = false;
         }
 
         while(client.connected())
         {
             currentTime = millis();
-
             bool newMsg = readValues(akoui.msgType);
 
             if(newMsg)
             {
-                lastMsg_Time = millis();
+                if(akoui.msgType == MessageType::Heartbeat)
+                {
+                    lastHbeat_time = millis();
+                    Serial.println("Hbeat");
+                }
+                else if (akoui.msgType != MessageType::Error){
+                    lastMsg_Time = millis();
+                    lastStealthMode_time = millis();
+                    Serial.println("New message");
 
-                //enterControlLoop = true;
-
-                Serial.println("New message");
-                //akoui.startingActions(msgType, lastMsg_Type);
+                    akoui.loopsToStealthMode_counter = 0;
+                    akoui.messagePeriodExpired_delivered = false;
+                }
+                else
+                {
+                    Serial.println("Error in the message");
+                }
             }
 
             if( (currentTime - lastTime) >= controlPeriod ) // Control synced loop (20 ms).
             {
 
-                /*if( (periodsToMessage_Cnt > periodsToMessage)  ) // Messages synced loop (200 ms).
-                {
-
-                    periodsToMessage_Cnt = 0;
-                }
-
-                periodsToMessage_Cnt++;
-        */
-
                 if( (currentTime - lastMsg_Time) >= messagesPeriod )
                 {
                     // Stop Akoui.
                     akoui.stop(false);
-                    Serial.println("Stop for messagesPeriod expired");
+                    if(!akoui.messagePeriodExpired_delivered)
+                    {
+                        Serial.println("MessagePeriod expired. Stopping.");
+                        akoui.messagePeriodExpired_delivered = true;
+                    }
                 }
                 else
                 {
-                    //akoui.evalContinuingActions();
-                    akoui.startingActions();
+                    akoui.startingActions( );
+                }
+
+                akoui.stealthModeCheck(lastStealthMode_time, currentTime);
+
+                if(!akoui.hearbeat_check(currentTime, lastHbeat_time))
+                {
+                    Serial.println("No se recibió el heartbeat");
+                    client.stop();
+                    akoui.clientConnected_flag = false;
                 }
 
                 lastTime = currentTime;
@@ -125,11 +153,15 @@ void loop()
             {
                 akoui.lastMsg_Type = akoui.msgType;
             }
+
         }
 
         client.stop();
         Serial.println("Client disconnected");
+        akoui.setConnectionStatusLEDs();
     }
 
+    currentTime = millis();
+    akoui.stealthModeCheck(lastStealthMode_time, currentTime);
     akoui.stop(false);
 }

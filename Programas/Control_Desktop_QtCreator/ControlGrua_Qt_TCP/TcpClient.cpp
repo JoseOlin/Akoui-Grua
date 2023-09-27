@@ -40,6 +40,11 @@ void TCPClient::onReadyRead()
 #endif
 }
 
+void TCPClient::sendHeartbeat()
+{
+    qint64 bytesWrited;
+    bytesWrited = socket->write(hearbeatMsg);
+}
 
 qint64 TCPClient::sendData(QByteArray data)
 {

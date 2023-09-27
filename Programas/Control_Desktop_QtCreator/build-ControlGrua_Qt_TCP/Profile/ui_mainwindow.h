@@ -10,6 +10,7 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
@@ -38,13 +39,13 @@ public:
     QLineEdit *lineEdit_2;
     QPushButton *pushButton;
     QPushButton *pushButton_2;
+    QCheckBox *hostHor_connected_chk;
+    QCheckBox *hostVer_connected_chk;
     QGridLayout *gridLayout;
     QPushButton *moveUp_btn;
     QPushButton *moveDown_btn;
     QPushButton *moveRight_btn;
     QPushButton *moveLeft_btn;
-    QCheckBox *hostHor_connected_chk;
-    QCheckBox *hostVer_connected_chk;
     QSlider *horizontalSlider;
     QPushButton *emergencyStop_btn;
     QMenuBar *menubar;
@@ -54,7 +55,19 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(331, 439);
+        MainWindow->resize(331, 470);
+        QPalette palette;
+        QBrush brush(QColor(255, 255, 255, 255));
+        brush.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Base, brush);
+        QBrush brush1(QColor(89, 89, 89, 255));
+        brush1.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::Window, brush1);
+        palette.setBrush(QPalette::Inactive, QPalette::Base, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::Window, brush1);
+        palette.setBrush(QPalette::Disabled, QPalette::Base, brush1);
+        palette.setBrush(QPalette::Disabled, QPalette::Window, brush1);
+        MainWindow->setPalette(palette);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout = new QVBoxLayout(centralwidget);
@@ -74,12 +87,12 @@ public:
         label_2 = new QLabel(centralwidget);
         label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        formLayout->setWidget(2, QFormLayout::LabelRole, label_2);
+        formLayout->setWidget(4, QFormLayout::LabelRole, label_2);
 
         lineEdit_2 = new QLineEdit(centralwidget);
         lineEdit_2->setObjectName(QString::fromUtf8("lineEdit_2"));
 
-        formLayout->setWidget(2, QFormLayout::FieldRole, lineEdit_2);
+        formLayout->setWidget(4, QFormLayout::FieldRole, lineEdit_2);
 
         pushButton = new QPushButton(centralwidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
@@ -89,7 +102,24 @@ public:
         pushButton_2 = new QPushButton(centralwidget);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
 
-        formLayout->setWidget(3, QFormLayout::FieldRole, pushButton_2);
+        formLayout->setWidget(5, QFormLayout::FieldRole, pushButton_2);
+
+        hostHor_connected_chk = new QCheckBox(centralwidget);
+        hostHor_connected_chk->setObjectName(QString::fromUtf8("hostHor_connected_chk"));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(hostHor_connected_chk->sizePolicy().hasHeightForWidth());
+        hostHor_connected_chk->setSizePolicy(sizePolicy);
+        hostHor_connected_chk->setMinimumSize(QSize(32, 32));
+        hostHor_connected_chk->setIconSize(QSize(32, 32));
+
+        formLayout->setWidget(2, QFormLayout::FieldRole, hostHor_connected_chk);
+
+        hostVer_connected_chk = new QCheckBox(centralwidget);
+        hostVer_connected_chk->setObjectName(QString::fromUtf8("hostVer_connected_chk"));
+
+        formLayout->setWidget(6, QFormLayout::FieldRole, hostVer_connected_chk);
 
 
         verticalLayout->addLayout(formLayout);
@@ -99,36 +129,42 @@ public:
         moveUp_btn = new QPushButton(centralwidget);
         moveUp_btn->setObjectName(QString::fromUtf8("moveUp_btn"));
         moveUp_btn->setMinimumSize(QSize(0, 50));
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/imgs/up.jpeg"), QSize(), QIcon::Normal, QIcon::Off);
+        moveUp_btn->setIcon(icon);
+        moveUp_btn->setIconSize(QSize(64, 64));
 
         gridLayout->addWidget(moveUp_btn, 1, 1, 1, 1);
 
         moveDown_btn = new QPushButton(centralwidget);
         moveDown_btn->setObjectName(QString::fromUtf8("moveDown_btn"));
         moveDown_btn->setMinimumSize(QSize(0, 50));
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/imgs/down.jpeg"), QSize(), QIcon::Normal, QIcon::Off);
+        moveDown_btn->setIcon(icon1);
+        moveDown_btn->setIconSize(QSize(64, 64));
 
         gridLayout->addWidget(moveDown_btn, 3, 1, 1, 1);
 
         moveRight_btn = new QPushButton(centralwidget);
         moveRight_btn->setObjectName(QString::fromUtf8("moveRight_btn"));
         moveRight_btn->setMinimumSize(QSize(0, 50));
+        QIcon icon2;
+        icon2.addFile(QString::fromUtf8(":/imgs/right.jpeg"), QSize(), QIcon::Normal, QIcon::Off);
+        moveRight_btn->setIcon(icon2);
+        moveRight_btn->setIconSize(QSize(64, 64));
 
         gridLayout->addWidget(moveRight_btn, 2, 2, 1, 1);
 
         moveLeft_btn = new QPushButton(centralwidget);
         moveLeft_btn->setObjectName(QString::fromUtf8("moveLeft_btn"));
         moveLeft_btn->setMinimumSize(QSize(0, 50));
+        QIcon icon3;
+        icon3.addFile(QString::fromUtf8(":/imgs/left.jpeg"), QSize(), QIcon::Normal, QIcon::Off);
+        moveLeft_btn->setIcon(icon3);
+        moveLeft_btn->setIconSize(QSize(64, 64));
 
         gridLayout->addWidget(moveLeft_btn, 2, 0, 1, 1);
-
-        hostHor_connected_chk = new QCheckBox(centralwidget);
-        hostHor_connected_chk->setObjectName(QString::fromUtf8("hostHor_connected_chk"));
-
-        gridLayout->addWidget(hostHor_connected_chk, 0, 2, 1, 1);
-
-        hostVer_connected_chk = new QCheckBox(centralwidget);
-        hostVer_connected_chk->setObjectName(QString::fromUtf8("hostVer_connected_chk"));
-
-        gridLayout->addWidget(hostVer_connected_chk, 0, 0, 1, 1);
 
 
         verticalLayout->addLayout(gridLayout);
@@ -163,16 +199,16 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", nullptr));
-        label->setText(QApplication::translate("MainWindow", "TextLabel", nullptr));
-        label_2->setText(QApplication::translate("MainWindow", "TextLabel", nullptr));
-        pushButton->setText(QApplication::translate("MainWindow", "PushButton", nullptr));
-        pushButton_2->setText(QApplication::translate("MainWindow", "PushButton", nullptr));
-        moveUp_btn->setText(QApplication::translate("MainWindow", "Subir", nullptr));
-        moveDown_btn->setText(QApplication::translate("MainWindow", "Bajar", nullptr));
-        moveRight_btn->setText(QApplication::translate("MainWindow", "Right", nullptr));
-        moveLeft_btn->setText(QApplication::translate("MainWindow", "Left", nullptr));
+        label->setText(QApplication::translate("MainWindow", "Akoui Hor IP", nullptr));
+        label_2->setText(QApplication::translate("MainWindow", "Akoui Ver IP", nullptr));
+        pushButton->setText(QApplication::translate("MainWindow", "Conectar Hor", nullptr));
+        pushButton_2->setText(QApplication::translate("MainWindow", "Conectar Ver", nullptr));
         hostHor_connected_chk->setText(QApplication::translate("MainWindow", "Host Hor Con", nullptr));
         hostVer_connected_chk->setText(QApplication::translate("MainWindow", "Host Ver Con", nullptr));
+        moveUp_btn->setText(QString());
+        moveDown_btn->setText(QString());
+        moveRight_btn->setText(QString());
+        moveLeft_btn->setText(QString());
         emergencyStop_btn->setText(QApplication::translate("MainWindow", "Emergency Stop", nullptr));
     } // retranslateUi
 
