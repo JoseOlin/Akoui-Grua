@@ -1,1 +1,0 @@
-/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Programas/Control_Desktop_QtCreator/build-ControlGrua_Qt_TCP/Profile/ControlGrua_Qt_TCP

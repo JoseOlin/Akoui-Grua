@@ -1,1 +1,0 @@
-/media/Ext4/Proyectos/Autonomia/Grua_Incorporacion/Documentación/IPs Fijas.md

@@ -1,7 +1,0 @@
-Makefile
-platformio.ini
-.gitignore
-src/Akoui_vertical_main.cpp
-src/Comunicacion.hpp
-src/Config.hpp
-src/Akoui_Vertical.hpp
